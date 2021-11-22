@@ -1,4 +1,3 @@
-g++ -o main ./src/*cpp -I c:/MinGW/include/ncurses -lncurses -I ./headers
+<h1>Building</h1>
 
-save files
-entity array
+g++ -o main ./src/*cpp -I c:/MinGW/include/ncurses -lncurses -I ./headers
