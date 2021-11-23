@@ -17,3 +17,15 @@ void door::set_path(std::string path) {
 std::string door::get_path() {
     return this->lvl_path;
 }
+
+void door::lock() {
+    this->locked = true;
+}
+
+void door::unlock() {
+    this->locked = false;
+}
+
+bool door::is_locked() {
+    return this->locked;
+}

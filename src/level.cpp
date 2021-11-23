@@ -19,6 +19,7 @@ level::level(int rows, int cols, std::string terrain) {
 }
 
 level::~level() {
+    delete this->p_start;
     while (!this->entities.empty()) {
         delete this->entities.back();
         this->entities.pop_back();
@@ -80,6 +81,20 @@ void level::destroy_entities() {
     }
 }
 
+coordinate* level::get_coord(std::string line) {
+    std::string info = line.substr(line.find('=')+1, line.size()-1);
+    int row, col;
+    int pos = info.find(',');
+
+    row = stoi(info.substr(0, pos));
+    info.erase(0, pos+1);
+    col = stoi(info);
+
+    coordinate * c = new coordinate(row, col);
+
+    return c;
+}
+
 int level::load_file(const char* fname) {
     destroy_entities();
     if (!this->is_level(fname)) return -1;
@@ -96,6 +111,11 @@ int level::load_file(const char* fname) {
         else if (line[0] == 't') {
             std::string terrain = line.substr(line.find('=')+1, line.size()-1);
             this->terrain = terrain;
+        }
+        else if (line[0] == 'p') {
+            coordinate * c = get_coord(line);
+            this->p_start->row = c->row;
+            this->p_start->col = c->col;
         }
         else if (line[0] == 'e') {
             this->entities.push_back(create_entity(line));
@@ -121,6 +141,18 @@ void level::set(int rows, int cols, std::string terrain) {
     this->terrain = terrain;
 }
 
+void level::lock_doors() {
+    for (size_t i = 0; i < this->doors.size(); i++) {
+        this->doors[i]->lock();
+    }
+}
+
+void level::unlock_doors() {
+    for (size_t i = 0; i < this->doors.size(); i++) {
+        this->doors[i]->unlock();
+    }
+}
+
 void level::render(WINDOW* win) {
     init_pair(1, COLOR_GREEN, COLOR_BLACK);
     wattron(win, COLOR_PAIR(1));
@@ -130,11 +162,17 @@ void level::render(WINDOW* win) {
         }
     }
     wattroff(win, COLOR_PAIR(1));
-    // refresh();
 }
 
 std::vector<entity*> level::get_entities() {
     return this->entities;
+}
+
+bool level::has_entities() {
+    for (size_t i = 0; i < this->entities.size(); i++) {
+        if (this->entities[i]->status()) return true;
+    }
+    return false;
 }
 
 std::vector<door*> level::get_doors() {
@@ -147,4 +185,8 @@ int level::get_rows() {
 
 int level::get_cols() {
     return this->cols;
+}
+
+coordinate * level::get_p_start() {
+    return this->p_start;
 }

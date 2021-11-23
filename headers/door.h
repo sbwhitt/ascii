@@ -9,6 +9,7 @@
 
 class door: public entity {
     private:
+        bool locked = true;
         std::string lvl_path;
 
     public:
@@ -17,4 +18,7 @@ class door: public entity {
         void set_pos(int row, int col);
         std::string get_path();
         coordinate* get_pos();
+        void lock();
+        void unlock();
+        bool is_locked();
 };

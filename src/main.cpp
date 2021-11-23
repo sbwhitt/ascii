@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
     // initialize windows
     WINDOW* game_win = newwin(l.get_rows()+1, l.get_cols()+1, 1, 1);
     WINDOW* game_bord = newwin(l.get_rows()+3, l.get_cols()+3, 0, 0);
-    WINDOW* txt_win = newwin(3, 30, 0, l.get_cols()+4);
+    WINDOW* txt_win = newwin(4, 30, 0, l.get_cols()+4);
     
     refresh();
     wrefresh(game_win);
@@ -57,8 +57,9 @@ int main(int argc, char *argv[]) {
         Sleep(50);
         l.render(game_win);
 
+        if (!l.has_entities()) l.unlock_doors();
         for (size_t i = 0; i < l.get_doors().size(); i++) {
-            if (p.collides(l.get_doors()[i])) {
+            if (p.collides(l.get_doors()[i]) && !l.get_doors()[i]->is_locked()) {
                 l.load_file(l.get_doors()[i]->get_path().c_str());
                 hard_clear();
                 refresh();
@@ -71,7 +72,7 @@ int main(int argc, char *argv[]) {
                 wrefresh(game_win);
                 wrefresh(txt_win);
 
-                p.set_pos(0, 0);
+                p.set_pos(l.get_p_start());
                 l.render(game_win);
                 break;
             }
@@ -85,7 +86,7 @@ int main(int argc, char *argv[]) {
                 entities[i]->render(game_win);
                 if (p.collides(entities[i])) {
                     p.add_score(1);
-                    // entities[i]->destroy();
+                    entities[i]->destroy();
                     entities[i]->set_pos(rand() % l.get_rows(), rand() % l.get_cols());
                 }
                 entities[i]->update(l.get_rows(), l.get_cols());

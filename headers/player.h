@@ -11,7 +11,7 @@
 class player {
     private:
         int score = 0;
-        sprite s{"X"};
+        sprite s{"&"};
         coordinate * coord = new coordinate(0, 0);
 
     public:
@@ -22,7 +22,7 @@ class player {
         void render(WINDOW* win);
         bool collides(entity *e);
         void add_score(int amount);
-        void set_pos(int row, int col);
+        void set_pos(coordinate* c);
         coordinate* get_pos();
         std::string log_pos();
         int get_score();
