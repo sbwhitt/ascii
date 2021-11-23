@@ -27,6 +27,11 @@ void player::add_score(int amount) {
     this->score += amount;
 }
 
+void player::set_pos(int row, int col) {
+    this->coord->row = row;
+    this->coord->col = col;
+} 
+
 int player::get_score() {
     return this->score;
 }

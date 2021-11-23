@@ -17,6 +17,8 @@ class level {
 
         entity* create_entity(std::string spec);
         door* create_door(std::string spec);
+        void destroy_entities();
+
     public:
         level();
         level(int rows, int cols, std::string terrain);

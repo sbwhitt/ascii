@@ -22,6 +22,7 @@ class player {
         void render(WINDOW* win);
         bool collides(entity *e);
         void add_score(int amount);
+        void set_pos(int row, int col);
         coordinate* get_pos();
         std::string log_pos();
         int get_score();

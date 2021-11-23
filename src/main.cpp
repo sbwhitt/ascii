@@ -28,6 +28,7 @@ int main(int argc, char *argv[]) {
 	}
     raw();
     noecho();
+    curs_set(0);
     start_color();
 
     // initialize level and accept cmd line input
@@ -57,6 +58,33 @@ int main(int argc, char *argv[]) {
         Sleep(50);
         l.render(game_win);
 
+        auto doors = l.get_doors();
+        for (size_t i = 0; i < doors.size(); i++) {
+            doors[i]->render(game_win);
+            if (p.collides(doors[i])) {
+                l.load_file(doors[i]->get_path().c_str());
+                // refresh();
+                p.set_pos(0, 0);
+                // clear();
+                // werase(game_win);
+                wresize(game_win, l.get_rows()+1, l.get_cols()+1);
+                wresize(game_bord, l.get_rows()+3, l.get_cols()+3);
+                mvwin(txt_win, 0, l.get_cols()+4);
+                // wclear(game_win);
+                // wclear(game_bord);
+                // wclear(txt_win);
+                // werase(game_win);
+                // werase(game_bord);
+                // werase(txt_win);
+                // wrefresh(game_bord);
+                // wrefresh(game_win);
+                // wrefresh(txt_win);
+                // clear();
+                // erase();
+                l.render(game_win);
+                break;
+            }
+        }
         auto entities = l.get_entities();
         for (size_t i = 0; i < entities.size(); i++) {
             if (entities[i]->status()) {
@@ -82,7 +110,7 @@ int main(int argc, char *argv[]) {
         wborder(txt_win, '|', '|', '-', '-', '+', '+', '+', '+');
         
         wrefresh(game_bord);
-        wrefresh(game_win);
+        // wrefresh(game_win);
         wrefresh(txt_win);
 
         wgetch(game_win);
@@ -100,8 +128,8 @@ int main(int argc, char *argv[]) {
             p.update_row(1, l.get_rows());
         }
 
-        wclear(game_win);
-        wclear(txt_win);
+        // wclear(game_win);
+        // wclear(txt_win);
         // clear();
     }
     wrefresh(game_win);

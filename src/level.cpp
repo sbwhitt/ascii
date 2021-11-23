@@ -49,28 +49,38 @@ entity* level::create_entity(std::string spec) {
     return e;
 }
 
-// entity* level::create_door(std::string spec) {
-//     std::string info = spec.substr(spec.find('=')+1, spec.size()-1);
-//     int row, col, pos;
-//     row = -1;
-//     col = -1;
-//     std::string sprite;
-//     while ((pos = info.find(',')) != std::string::npos) {
-//         if (row == -1) {
-//             row = stoi(info.substr(0, pos));
-//         }
-//         else if (col == -1) {
-//             col = stoi(info.substr(0, pos));
-//         }
-//         info.erase(0, pos+1);
-//     }
-//     sprite = info;
-//     entity* e = new entity(row, col, sprite);
+door* level::create_door(std::string spec) {
+    std::string info = spec.substr(spec.find('=')+1, spec.size()-1);
+    int row, col, pos;
+    row = -1;
+    col = -1;
+    std::string path;
+    std::string sprite = "";
+    while ((pos = info.find(',')) != std::string::npos) {
+        if (row == -1) row = stoi(info.substr(0, pos));
+        else if (col == -1) col = stoi(info.substr(0, pos));
+        // else if (sprite == "") sprite = info;
+        info.erase(0, pos+1);
+    }
+    path = info;
+    door* d = new door(row, col, path);
 
-//     return e;
-// }
+    return d;
+}
+
+void level::destroy_entities() {
+    while (!this->entities.empty()) {
+        delete this->entities.back();
+        this->entities.pop_back();
+    }
+    while (!this->doors.empty()) {
+        delete this->doors.back();
+        this->doors.pop_back();
+    }
+}
 
 int level::load_file(const char* fname) {
+    destroy_entities();
     std::ifstream fin(fname);
     for (std::string line; getline(fin, line);) {
         if (line[0] == 'r') {
@@ -88,9 +98,9 @@ int level::load_file(const char* fname) {
         else if (line[0] == 'e') {
             this->entities.push_back(create_entity(line));
         }
-        // else if (line[0] == 'd') {
-        //     this->doors.push_back(create_door(line));
-        // }
+        else if (line[0] == 'd') {
+            this->doors.push_back(create_door(line));
+        }
     }
     fin.close();
     return 0;
@@ -116,6 +126,10 @@ void level::render(WINDOW* win) {
 
 std::vector<entity*> level::get_entities() {
     return this->entities;
+}
+
+std::vector<door*> level::get_doors() {
+    return this->doors;
 }
 
 int level::get_rows() {

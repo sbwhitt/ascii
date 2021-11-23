@@ -8,7 +8,7 @@
 // #include "level.h"
 
 class entity {
-    private:
+    protected:
         bool exists = true;
         sprite s{"!"};
         coordinate * coord = new coordinate(0, 0);
