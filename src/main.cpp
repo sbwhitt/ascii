@@ -1,6 +1,5 @@
 #include <iostream>
 #include <string>
-#include <regex>
 #include <vector>
 #include <stdlib.h>
 #include <Windows.h>
@@ -12,11 +11,13 @@
 #include "entity.h"
 #include "sprite.h"
 
-bool is_level(char* arg) {
-    std::regex r("([a-zA-Z]*.lvl)");
-    std::string s = arg;
-    if (std::regex_match(s, r)) return true;
-    return false;
+void hard_clear() {
+    for (int i = 0; i < LINES; i++) {
+        for (int j = 0; j < COLS; j++) {
+            printw(" ");
+        }
+        printw("\n");
+    }
 }
 
 int main(int argc, char *argv[]) {
@@ -33,10 +34,8 @@ int main(int argc, char *argv[]) {
 
     // initialize level and accept cmd line input
     level l;
-    if (argc > 1 && is_level(argv[1])) {
-        std::string path = "./levels/";
-        path += argv[1];
-        l.load_file(path.c_str());
+    if (argc > 1) {
+        if (l.load_file(argv[1]) != 0) return -1;
     }
     else l.load_file("./levels/one.lvl");
 
@@ -58,32 +57,27 @@ int main(int argc, char *argv[]) {
         Sleep(50);
         l.render(game_win);
 
-        auto doors = l.get_doors();
-        for (size_t i = 0; i < doors.size(); i++) {
-            doors[i]->render(game_win);
-            if (p.collides(doors[i])) {
-                l.load_file(doors[i]->get_path().c_str());
-                // refresh();
-                p.set_pos(0, 0);
-                // clear();
-                // werase(game_win);
+        for (size_t i = 0; i < l.get_doors().size(); i++) {
+            if (p.collides(l.get_doors()[i])) {
+                l.load_file(l.get_doors()[i]->get_path().c_str());
+                hard_clear();
+                refresh();
+                clear();                
+                
                 wresize(game_win, l.get_rows()+1, l.get_cols()+1);
                 wresize(game_bord, l.get_rows()+3, l.get_cols()+3);
                 mvwin(txt_win, 0, l.get_cols()+4);
-                // wclear(game_win);
-                // wclear(game_bord);
-                // wclear(txt_win);
-                // werase(game_win);
-                // werase(game_bord);
-                // werase(txt_win);
-                // wrefresh(game_bord);
-                // wrefresh(game_win);
-                // wrefresh(txt_win);
-                // clear();
-                // erase();
+                wrefresh(game_bord);
+                wrefresh(game_win);
+                wrefresh(txt_win);
+
+                p.set_pos(0, 0);
                 l.render(game_win);
                 break;
             }
+        }
+        for (size_t i = 0; i < l.get_doors().size(); i++) {
+            l.get_doors()[i]->render(game_win);
         }
         auto entities = l.get_entities();
         for (size_t i = 0; i < entities.size(); i++) {
@@ -127,10 +121,6 @@ int main(int argc, char *argv[]) {
         if (GetKeyState('S') & 0x8000) {
             p.update_row(1, l.get_rows());
         }
-
-        // wclear(game_win);
-        // wclear(txt_win);
-        // clear();
     }
     wrefresh(game_win);
     delwin(game_win);

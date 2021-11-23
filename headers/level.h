@@ -18,6 +18,7 @@ class level {
         entity* create_entity(std::string spec);
         door* create_door(std::string spec);
         void destroy_entities();
+        bool is_level(const char* path);
 
     public:
         level();

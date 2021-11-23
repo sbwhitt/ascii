@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 #include <cstring>
+#include <regex>
 
 #include "level.h"
 #include "coordinate.h"
@@ -81,6 +82,7 @@ void level::destroy_entities() {
 
 int level::load_file(const char* fname) {
     destroy_entities();
+    if (!this->is_level(fname)) return -1;
     std::ifstream fin(fname);
     for (std::string line; getline(fin, line);) {
         if (line[0] == 'r') {
@@ -104,6 +106,13 @@ int level::load_file(const char* fname) {
     }
     fin.close();
     return 0;
+}
+
+bool level::is_level(const char* path) {
+    std::regex r("(\\W\\D\\S[a-zA-Z]*.*.lvl)");
+    std::string s = path;
+    if (std::regex_match(s, r)) return true;
+    return false;
 }
 
 void level::set(int rows, int cols, std::string terrain) {

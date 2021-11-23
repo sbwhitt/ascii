@@ -5,4 +5,4 @@ e=10,30,o
 e=0,30,o
 e=10,0,o
 e=5,15,o
-d=0,1,@,./levels/two.lvl
+d=10,15,@,./levels/two.lvl
