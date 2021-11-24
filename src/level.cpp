@@ -20,17 +20,10 @@ level::level(int rows, int cols, std::string terrain) {
 
 level::~level() {
     delete this->p_start;
-    while (!this->entities.empty()) {
-        delete this->entities.back();
-        this->entities.pop_back();
-    }
-    while (!this->doors.empty()) {
-        delete this->doors.back();
-        this->doors.pop_back();
-    }
+    this->destroy_entities();
 }
 
-entity* level::create_entity(std::string spec) {
+entity* level::create_entity(std::string spec, bool nme) {
     std::string info = spec.substr(spec.find('=')+1, spec.size()-1);
     int row, col, pos;
     row = -1;
@@ -46,7 +39,7 @@ entity* level::create_entity(std::string spec) {
         info.erase(0, pos+1);
     }
     sprite = info;
-    entity* e = new entity(row, col, sprite);
+    entity* e = new entity(row, col, sprite, nme);
 
     return e;
 }
@@ -118,7 +111,10 @@ int level::load_file(const char* fname) {
             this->p_start->col = c->col;
         }
         else if (line[0] == 'e') {
-            this->entities.push_back(create_entity(line));
+            this->entities.push_back(create_entity(line, false));
+        }
+        else if (line[0] == 'n') {
+            this->entities.push_back(create_entity(line, true));
         }
         else if (line[0] == 'd') {
             this->doors.push_back(create_door(line));
@@ -154,7 +150,6 @@ void level::unlock_doors() {
 }
 
 void level::render(WINDOW* win) {
-    init_pair(1, COLOR_GREEN, COLOR_BLACK);
     wattron(win, COLOR_PAIR(1));
     for (int i = 0; i <= this->rows; i++) {
         for (int j = 0; j <= this->cols; j++) {
@@ -164,13 +159,34 @@ void level::render(WINDOW* win) {
     wattroff(win, COLOR_PAIR(1));
 }
 
+void level::render_doors(WINDOW* win) {
+    for (size_t i = 0; i < this->doors.size(); i++) {
+        int color = this->doors[i]->is_locked() ? 5 : 6;
+        wattron(win, COLOR_PAIR(color));
+        this->doors[i]->render(win);
+        wattroff(win, COLOR_PAIR(color));
+    }
+}
+
+void level::render_entities(WINDOW* win) {
+    for (size_t i = 0; i < this->entities.size(); i++) {
+        if (this->entities[i]->alive()) {
+            int color = this->entities[i]->is_enemy() ? 4 : 3;
+            wattron(win, COLOR_PAIR(color));
+            this->entities[i]->render(win);
+            wattroff(win, COLOR_PAIR(color));
+            this->entities[i]->update_rand(this->get_rows(), this->get_cols());
+        }
+    }   
+}
+
 std::vector<entity*> level::get_entities() {
     return this->entities;
 }
 
 bool level::has_entities() {
     for (size_t i = 0; i < this->entities.size(); i++) {
-        if (this->entities[i]->status()) return true;
+        if (this->entities[i]->alive() && !this->entities[i]->is_enemy()) return true;
     }
     return false;
 }

@@ -15,7 +15,9 @@ void player::update_col(int offset, int col_max) {
 }
 
 void player::render(WINDOW* win) {
+    wattron(win, COLOR_PAIR(2));
     mvwprintw(win, this->coord->row, this->coord->col, this->s.get_sprite());
+    wattroff(win, COLOR_PAIR(2));
     // refresh();
 }
 

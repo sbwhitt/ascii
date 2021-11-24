@@ -20,6 +20,18 @@ void hard_clear() {
     }
 }
 
+void cleanup(std::vector<WINDOW*> wins) {
+    for (size_t i = 0; i < wins.size(); i++) {
+        wrefresh(wins[i]);
+        delwin(wins[i]);
+    }
+    clear();
+    printw("GAME OVER\n");
+    printw("press any key to exit");
+    getch();
+    endwin();
+}
+
 int main(int argc, char *argv[]) {
     initscr();
     if(has_colors() == FALSE) {
@@ -32,6 +44,13 @@ int main(int argc, char *argv[]) {
     curs_set(0);
     start_color();
 
+    init_pair(1, COLOR_GREEN, COLOR_BLACK);
+    init_pair(2, COLOR_MAGENTA, COLOR_BLACK);
+    init_pair(3, COLOR_CYAN, COLOR_BLACK);
+    init_pair(4, (COLOR_RED | COLOR_YELLOW), COLOR_BLACK);
+    init_pair(5, COLOR_WHITE, COLOR_RED);
+    init_pair(6, COLOR_WHITE, COLOR_CYAN);
+
     // initialize level and accept cmd line input
     level l;
     if (argc > 1) {
@@ -40,9 +59,12 @@ int main(int argc, char *argv[]) {
     else l.load_file("./levels/one.lvl");
 
     // initialize windows
+    std::vector<WINDOW*> wins;
     WINDOW* game_win = newwin(l.get_rows()+1, l.get_cols()+1, 1, 1);
     WINDOW* game_bord = newwin(l.get_rows()+3, l.get_cols()+3, 0, 0);
     WINDOW* txt_win = newwin(4, 30, 0, l.get_cols()+4);
+
+    wins.push_back(game_win); wins.push_back(game_bord); wins.push_back(txt_win);
     
     refresh();
     wrefresh(game_win);
@@ -77,22 +99,22 @@ int main(int argc, char *argv[]) {
                 break;
             }
         }
-        for (size_t i = 0; i < l.get_doors().size(); i++) {
-            l.get_doors()[i]->render(game_win);
-        }
-        auto entities = l.get_entities();
-        for (size_t i = 0; i < entities.size(); i++) {
-            if (entities[i]->status()) {
-                entities[i]->render(game_win);
-                if (p.collides(entities[i])) {
-                    p.add_score(1);
-                    entities[i]->destroy();
-                    entities[i]->set_pos(rand() % l.get_rows(), rand() % l.get_cols());
+
+        for (size_t i = 0; i < l.get_entities().size(); i++) {
+            if (l.get_entities()[i]->alive() && p.collides(l.get_entities()[i])) {
+                if (l.get_entities()[i]->is_enemy()) {
+                    cleanup(wins);
+                    return 0;
                 }
-                entities[i]->update_rand(l.get_rows(), l.get_cols());
+                p.add_score(1);
+                l.get_entities()[i]->destroy();
+                l.get_entities()[i]->set_pos(rand() % l.get_rows(), rand() % l.get_cols());
             }
         }
+
         p.render(game_win);
+        l.render_doors(game_win);
+        l.render_entities(game_win);
 
         wborder(game_bord, '|', '|', '-', '-', '+', '+', '+', '+');
         
@@ -123,16 +145,7 @@ int main(int argc, char *argv[]) {
             p.update_row(1, l.get_rows());
         }
     }
-    wrefresh(game_win);
-    delwin(game_win);
 
-    wrefresh(game_bord);
-    delwin(game_bord);
-
-    wrefresh(txt_win);
-	delwin(txt_win);
-
-    clear();
-    endwin();
+    cleanup(wins);
     return 0;
 }

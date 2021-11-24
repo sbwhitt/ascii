@@ -17,7 +17,7 @@ class level {
         std::vector<entity*> entities;
         std::vector<door*> doors;
 
-        entity* create_entity(std::string spec);
+        entity* create_entity(std::string spec, bool nme);
         door* create_door(std::string spec);
         void destroy_entities();
         bool is_level(const char* path);
@@ -30,6 +30,8 @@ class level {
         int load_file(const char* fname);
         void set(int rows, int cols, std::string terrain);
         void render(WINDOW* win);
+        void render_doors(WINDOW* win);
+        void render_entities(WINDOW* win);
         std::vector<entity*> get_entities();
         std::vector<door*> get_doors();
         int get_rows();

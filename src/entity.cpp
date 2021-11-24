@@ -19,6 +19,13 @@ entity::entity(int row, int col, std::string sprite) {
     this->s.raw = sprite;
 }
 
+entity::entity(int row, int col, std::string sprite, bool nme) {
+    this->coord->row = row;
+    this->coord->col = col;
+    this->s.raw = sprite;
+    this->enemy = nme;
+}
+
 void entity::update_rand(int row_max, int col_max) {
     if ((rand() % 2 + 1) % 2 == 0) this->coord->row_adjust(rand() % 3 - 1, row_max);
     else this->coord->col_adjust(rand() % 3 - 1, col_max);
@@ -38,8 +45,12 @@ void entity::destroy() {
     this->exists = false;
 }
 
-bool entity::status() {
+bool entity::alive() {
     return this->exists;
+}
+
+bool entity::is_enemy() {
+    return this->enemy;
 }
 
 coordinate* entity::get_pos() {
