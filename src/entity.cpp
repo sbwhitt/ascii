@@ -19,7 +19,7 @@ entity::entity(int row, int col, std::string sprite) {
     this->s.raw = sprite;
 }
 
-void entity::update(int row_max, int col_max) {
+void entity::update_rand(int row_max, int col_max) {
     if ((rand() % 2 + 1) % 2 == 0) this->coord->row_adjust(rand() % 3 - 1, row_max);
     else this->coord->col_adjust(rand() % 3 - 1, col_max);
 }

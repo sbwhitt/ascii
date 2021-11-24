@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
                     entities[i]->destroy();
                     entities[i]->set_pos(rand() % l.get_rows(), rand() % l.get_cols());
                 }
-                entities[i]->update(l.get_rows(), l.get_cols());
+                entities[i]->update_rand(l.get_rows(), l.get_cols());
             }
         }
         p.render(game_win);

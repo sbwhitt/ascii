@@ -18,7 +18,7 @@ class entity {
         entity(int row, int col);
         entity(int row, int col, std::string s);
         ~entity();
-        void update(int row_max, int col_max);
+        void update_rand(int row_max, int col_max);
         void set_pos(int row, int col);
         void render(WINDOW* win);
         void destroy();
