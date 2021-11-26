@@ -21,6 +21,7 @@ class entity {
         entity(int row, int col, std::string sprite, bool nme);
         ~entity();
         void update_rand(int row_max, int col_max);
+        void update_follow(int row_max, int col_max, coordinate* target);
         void set_pos(int row, int col);
         void render(WINDOW* win);
         void destroy();

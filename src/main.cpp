@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
         Sleep(50);
         l.render(game_win);
 
-        if (!l.has_entities()) l.unlock_doors();
+        // door collision
         for (size_t i = 0; i < l.get_doors().size(); i++) {
             if (p.collides(l.get_doors()[i]) && !l.get_doors()[i]->is_locked()) {
                 l.load_file(l.get_doors()[i]->get_path().c_str());
@@ -100,27 +100,42 @@ int main(int argc, char *argv[]) {
             }
         }
 
+        // entity collision
         for (size_t i = 0; i < l.get_entities().size(); i++) {
             if (l.get_entities()[i]->alive() && p.collides(l.get_entities()[i])) {
                 if (l.get_entities()[i]->is_enemy()) {
-                    cleanup(wins);
-                    return 0;
+                    p.lose_life();
+                    if (p.get_life() == 0) {
+                        cleanup(wins);
+                        return 0;
+                    }
                 }
                 p.add_score(1);
                 l.get_entities()[i]->destroy();
-                l.get_entities()[i]->set_pos(rand() % l.get_rows(), rand() % l.get_cols());
+            }
+        }
+
+        // if no entities unlock doors and despawn enemies
+        if (!l.has_entities()) {
+            l.unlock_doors();
+            for (size_t i = 0; i < l.get_entities().size(); i++) {
+                if (l.get_entities()[i]->is_enemy()) {
+                    l.get_entities()[i]->destroy();
+                }
             }
         }
 
         p.render(game_win);
         l.render_doors(game_win);
-        l.render_entities(game_win);
+        l.render_entities(game_win, p.get_pos());
 
         wborder(game_bord, '|', '|', '-', '-', '+', '+', '+', '+');
         
+        std::string p_life = "player life: " + std::to_string(p.get_life());
         std::string p_score = "player score: " + std::to_string(p.get_score());
-        mvwprintw(txt_win, 1, 1, p_score.c_str());
-        mvwprintw(txt_win, 2, 1, p.log_pos().c_str());
+        mvwprintw(txt_win, 1, 1, p_life.c_str());
+        mvwprintw(txt_win, 2, 1, p_score.c_str());
+        mvwprintw(txt_win, 3, 1, p.log_pos().c_str());
         // mvwprintw(txt_win, 3, 1, e1.log_pos().c_str());
         // mvwprintw(txt_win, 4, 1, e2.log_pos().c_str());
         // mvwprintw(txt_win, 5, 1, e3.log_pos().c_str());

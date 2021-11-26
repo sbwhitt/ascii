@@ -31,7 +31,7 @@ class level {
         void set(int rows, int cols, std::string terrain);
         void render(WINDOW* win);
         void render_doors(WINDOW* win);
-        void render_entities(WINDOW* win);
+        void render_entities(WINDOW* win, coordinate* c);
         std::vector<entity*> get_entities();
         std::vector<door*> get_doors();
         int get_rows();

@@ -11,6 +11,7 @@
 class player {
     private:
         int score = 0;
+        int life = 3;
         sprite s{"&"};
         coordinate * coord = new coordinate(0, 0);
 
@@ -22,8 +23,10 @@ class player {
         void render(WINDOW* win);
         bool collides(entity *e);
         void add_score(int amount);
+        void lose_life();
         void set_pos(coordinate* c);
         coordinate* get_pos();
         std::string log_pos();
         int get_score();
+        int get_life();
 };

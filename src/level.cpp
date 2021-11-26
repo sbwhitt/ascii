@@ -168,14 +168,15 @@ void level::render_doors(WINDOW* win) {
     }
 }
 
-void level::render_entities(WINDOW* win) {
+void level::render_entities(WINDOW* win, coordinate* c) {
     for (size_t i = 0; i < this->entities.size(); i++) {
         if (this->entities[i]->alive()) {
             int color = this->entities[i]->is_enemy() ? 4 : 3;
             wattron(win, COLOR_PAIR(color));
             this->entities[i]->render(win);
             wattroff(win, COLOR_PAIR(color));
-            this->entities[i]->update_rand(this->get_rows(), this->get_cols());
+            if (this->entities[i]->is_enemy()) this->entities[i]->update_follow(this->get_rows(), this->get_cols(), c);
+            else this->entities[i]->update_rand(this->get_rows(), this->get_cols());
         }
     }   
 }
