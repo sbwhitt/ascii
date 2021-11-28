@@ -12,3 +12,4 @@ n=5,12,x
 n=6,13,x
 d=5,0,@,./levels/one.lvl
 d=10,20,@,./levels/three.lvl
+i=1,10,10,*

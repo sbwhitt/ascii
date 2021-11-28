@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <stdlib.h>
+#include <time.h>
 #include <Windows.h>
 #include <ncurses.h>
 
@@ -10,6 +11,7 @@
 #include "level.h"
 #include "entity.h"
 #include "sprite.h"
+#include "item.h"
 
 void hard_clear() {
     for (int i = 0; i < LINES; i++) {
@@ -44,12 +46,15 @@ int main(int argc, char *argv[]) {
     curs_set(0);
     start_color();
 
+    srand(time(NULL));
+
     init_pair(1, COLOR_GREEN, COLOR_BLACK);
     init_pair(2, COLOR_MAGENTA, COLOR_BLACK);
     init_pair(3, COLOR_CYAN, COLOR_BLACK);
-    init_pair(4, (COLOR_RED | COLOR_YELLOW), COLOR_BLACK);
+    init_pair(4, COLOR_RED, COLOR_BLACK);
     init_pair(5, COLOR_WHITE, COLOR_RED);
     init_pair(6, COLOR_WHITE, COLOR_CYAN);
+    init_pair(7, COLOR_YELLOW, COLOR_BLACK);
 
     // initialize level and accept cmd line input
     level l;
@@ -62,14 +67,14 @@ int main(int argc, char *argv[]) {
     std::vector<WINDOW*> wins;
     WINDOW* game_win = newwin(l.get_rows()+1, l.get_cols()+1, 1, 1);
     WINDOW* game_bord = newwin(l.get_rows()+3, l.get_cols()+3, 0, 0);
-    WINDOW* txt_win = newwin(4, 30, 0, l.get_cols()+4);
+    WINDOW* txt_win = newwin(5, 30, 0, l.get_cols()+4);
 
     wins.push_back(game_win); wins.push_back(game_bord); wins.push_back(txt_win);
     
     refresh();
-    wrefresh(game_win);
-    wrefresh(game_bord);
-    wrefresh(txt_win);
+    for (size_t i = 0; i < wins.size(); i++) {
+        wrefresh(wins[i]);
+    }
 
     // initialize player and entities
     player p;
@@ -78,6 +83,16 @@ int main(int argc, char *argv[]) {
     while (!(GetKeyState('X') & 0x8000)) {
         Sleep(50);
         l.render(game_win);
+
+        // item collision
+        for (size_t i = 0; i < l.get_items().size(); i++) {
+            if (p.collides(l.get_items()[i])) {
+                if (l.get_items()[i]->get_type() == items::life) {
+                    p.add_life();
+                    l.get_items()[i]->destroy();
+                }
+            }
+        }
 
         // door collision
         for (size_t i = 0; i < l.get_doors().size(); i++) {
@@ -90,9 +105,9 @@ int main(int argc, char *argv[]) {
                 wresize(game_win, l.get_rows()+1, l.get_cols()+1);
                 wresize(game_bord, l.get_rows()+3, l.get_cols()+3);
                 mvwin(txt_win, 0, l.get_cols()+4);
-                wrefresh(game_bord);
-                wrefresh(game_win);
-                wrefresh(txt_win);
+                for (size_t i = 0; i < wins.size(); i++) {
+                    wrefresh(wins[i]);
+                }
 
                 p.set_pos(l.get_p_start());
                 l.render(game_win);
@@ -126,8 +141,9 @@ int main(int argc, char *argv[]) {
         }
 
         p.render(game_win);
-        l.render_doors(game_win);
         l.render_entities(game_win, p.get_pos());
+        l.render_doors(game_win);
+        l.render_items(game_win);
 
         wborder(game_bord, '|', '|', '-', '-', '+', '+', '+', '+');
         
@@ -136,9 +152,7 @@ int main(int argc, char *argv[]) {
         mvwprintw(txt_win, 1, 1, p_life.c_str());
         mvwprintw(txt_win, 2, 1, p_score.c_str());
         mvwprintw(txt_win, 3, 1, p.log_pos().c_str());
-        // mvwprintw(txt_win, 3, 1, e1.log_pos().c_str());
-        // mvwprintw(txt_win, 4, 1, e2.log_pos().c_str());
-        // mvwprintw(txt_win, 5, 1, e3.log_pos().c_str());
+
         wborder(txt_win, '|', '|', '-', '-', '+', '+', '+', '+');
         
         wrefresh(game_bord);

@@ -1,4 +1,4 @@
-r=20
+r=15
 c=30
 t=~
 p=0,1
@@ -17,4 +17,6 @@ n=11,14,x
 n=11,15,x
 n=11,16,x
 d=0,0,@,./levels/two.lvl
-d=20,30,@,./levels/four.lvl
+d=15,30,@,./levels/four.lvl
+i=1,15,0,*
+i=1,0,30,*

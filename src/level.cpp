@@ -9,6 +9,7 @@
 #include "coordinate.h"
 #include "entity.h"
 #include "door.h"
+#include "item.h"
 
 level::level() {}
 
@@ -63,6 +64,25 @@ door* level::create_door(std::string spec) {
     return d;
 }
 
+item* level::create_item(std::string spec) {
+    std::string info = spec.substr(spec.find('=')+1, spec.size()-1);
+    int id, row, col, pos;
+    id = -1;
+    row = -1;
+    col = -1;
+    std::string sprite = "";
+    while ((pos = info.find(',')) != std::string::npos) {
+        if (id == -1) id = stoi(info.substr(0, pos));
+        else if (row == -1) row = stoi(info.substr(0, pos));
+        else if (col == -1) col = stoi(info.substr(0, pos));
+        info.erase(0, pos+1);
+    }
+    sprite = info;
+    item* i = new item(id, row, col, sprite);
+
+    return i;
+}
+
 void level::destroy_entities() {
     while (!this->entities.empty()) {
         delete this->entities.back();
@@ -71,6 +91,10 @@ void level::destroy_entities() {
     while (!this->doors.empty()) {
         delete this->doors.back();
         this->doors.pop_back();
+    }
+    while (!this->items.empty()) {
+        delete this->items.back();
+        this->items.pop_back();
     }
 }
 
@@ -119,6 +143,9 @@ int level::load_file(const char* fname) {
         else if (line[0] == 'd') {
             this->doors.push_back(create_door(line));
         }
+        else if (line[0] == 'i') {
+            this->items.push_back(create_item(line));
+        }
     }
     fin.close();
     return 0;
@@ -159,15 +186,6 @@ void level::render(WINDOW* win) {
     wattroff(win, COLOR_PAIR(1));
 }
 
-void level::render_doors(WINDOW* win) {
-    for (size_t i = 0; i < this->doors.size(); i++) {
-        int color = this->doors[i]->is_locked() ? 5 : 6;
-        wattron(win, COLOR_PAIR(color));
-        this->doors[i]->render(win);
-        wattroff(win, COLOR_PAIR(color));
-    }
-}
-
 void level::render_entities(WINDOW* win, coordinate* c) {
     for (size_t i = 0; i < this->entities.size(); i++) {
         if (this->entities[i]->alive()) {
@@ -179,6 +197,26 @@ void level::render_entities(WINDOW* win, coordinate* c) {
             else this->entities[i]->update_rand(this->get_rows(), this->get_cols());
         }
     }   
+}
+
+void level::render_doors(WINDOW* win) {
+    for (size_t i = 0; i < this->doors.size(); i++) {
+        int color = this->doors[i]->is_locked() ? 5 : 6;
+        wattron(win, COLOR_PAIR(color));
+        this->doors[i]->render(win);
+        wattroff(win, COLOR_PAIR(color));
+    }
+}
+
+void level::render_items(WINDOW* win) {
+    for (size_t i = 0; i < this->items.size(); i++) {
+        if (this->items[i]->alive()) {
+            int color = this->items[i]->get_color();
+            wattron(win, COLOR_PAIR(color));
+            this->items[i]->render(win);
+            wattroff(win, COLOR_PAIR(color));
+        }
+    }
 }
 
 std::vector<entity*> level::get_entities() {
@@ -194,6 +232,10 @@ bool level::has_entities() {
 
 std::vector<door*> level::get_doors() {
     return this->doors;
+}
+
+std::vector<item*> level::get_items() {
+    return this->items;
 }
 
 int level::get_rows() {

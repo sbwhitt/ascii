@@ -34,6 +34,10 @@ void player::set_pos(coordinate* c) {
     this->coord->col = c->col;
 }
 
+void player::add_life() {
+    this->life += 1;
+}
+
 void player::lose_life() {
     this->life -= 1;
 }
