@@ -4,7 +4,7 @@ You play as an ampersand who has to dodge Xs and eat Os and *s. After collecting
 
 <h2>Level files</h2>
 
-Levels are defined in .lvl files. These determine the level dimensions, terrain character, player, entity and door positions, and paths to the next level.
+Levels are defined in .lvl files. These determine the level dimensions, terrain character, player, entities and door position, and path to the next level.
 
 <h2>Building</h2>
 
